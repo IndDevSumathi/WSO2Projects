@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/billInquiry" name="EP_Bill_Inquiry_Service" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST GET">
+        <inSequence>
+            <log level="custom">
+                <property name="Message" value="**** Electricity Provider Bill Inquiry Service Invoked ****"/>
+            </log>
+            <property expression="json-eval($)" name="inquiryRequest" scope="default" type="STRING"/>
+            <property expression="json-eval($.uid)" name="uid" scope="default" type="STRING"/>
+            <!--Fetch dueAmount-->
+            <payloadFactory media-type="xml">
+                <format>
+                    <getDueAmount>
+                        <uid>$1</uid>
+                    </getDueAmount>
+                </format>
+                <args>
+                    <arg evaluator="xml" expression="$ctx:uid"/>
+                </args>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="text/xml"/>
+            <header name="Action" scope="default" value="getDueAmount"/>
+            <call>
+                <endpoint key="DBCall"/>
+            </call>
+            <property expression="$body//ns:dueAmount/text()" name="dueAmount" scope="default" type="STRING" xmlns:ns="MPesaDS"/>
+            <property expression="$body//ns:duePending/text()" name="duePending" scope="default" type="STRING" xmlns:ns="MPesaDS"/>
+            <log level="custom">
+                <property expression="$ctx:dueAmount" name="dueAmount "/>
+                <property expression="$ctx:duePending" name="duePending "/>
+            </log>
+            <filter regex="YES" source="get-property('duePending')">
+                <then>
+                    <payloadFactory media-type="json">
+                        <format>
+		                   { 
+		                   "dueAmount": "$1"
+		                   }
+		               </format>
+                        <args>
+                            <arg evaluator="xml" expression="$ctx:dueAmount"/>
+                        </args>
+                    </payloadFactory>
+                    <respond/>
+                </then>
+                <else>
+                    <payloadFactory media-type="json">
+                        <format>
+		                   { 
+		                   "message": "No due to pay"
+		                   }
+		               </format>
+                        <args/>
+                    </payloadFactory>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+</api>

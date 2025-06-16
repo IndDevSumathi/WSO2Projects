@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="MPesa_TechM_EBPayment_Integration" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/MPesa_TechM_EBPayment_Integration.xml</file>
+    </artifact>
+    <artifact name="MPesa_TechM_EBPayment_Integration_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/MPesa_TechM_EBPayment_Integration_swagger.yaml</file>
+    </artifact>
+    <artifact name="MPesa_TechM_EBPayment_Integration_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/MPesa_TechM_EBPayment_Integration_metadata.yaml</file>
+    </artifact>
+    <artifact name="EP_Bill_Inquiry_Service" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/EP_Bill_Inquiry_Service.xml</file>
+    </artifact>
+    <artifact name="EP_Bill_Inquiry_Service_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/EP_Bill_Inquiry_Service_swagger.yaml</file>
+    </artifact>
+    <artifact name="EP_Bill_Inquiry_Service_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/EP_Bill_Inquiry_Service_metadata.yaml</file>
+    </artifact>
+    <artifact name="EP_Payment_Service" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/EP_Payment_Service.xml</file>
+    </artifact>
+    <artifact name="EP_Payment_Service_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/EP_Payment_Service_swagger.yaml</file>
+    </artifact>
+    <artifact name="EP_Payment_Service_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/EP_Payment_Service_metadata.yaml</file>
+    </artifact>
+    <artifact name="DBCall" groupId="com.example.endpoint" version="1.0.0" type="synapse/endpoint" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/endpoints/DBCall.xml</file>
+    </artifact>
+</artifacts>

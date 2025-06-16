@@ -1,0 +1,11 @@
+---
+key: "MPesa_TechM_EBPayment_Integration-1.0.0"
+name : "MPesa_TechM_EBPayment_Integration"
+displayName : "MPesa_TechM_EBPayment_Integration"
+description: "Sample API"
+version: "1.0.0"
+serviceUrl: "https://{MI_HOST}:{MI_PORT}/ebPayment"
+definitionType: "OAS3"
+securityType: "BASIC"
+mutualSSLEnabled: false
+apiId : "null"
