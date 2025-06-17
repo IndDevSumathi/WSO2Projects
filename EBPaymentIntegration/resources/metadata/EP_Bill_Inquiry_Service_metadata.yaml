@@ -1,0 +1,11 @@
+---
+key: "EP_Bill_Inquiry_Service-1.0.0"
+name : "EP_Bill_Inquiry_Service"
+displayName : "EP_Bill_Inquiry_Service"
+description: "Sample API"
+version: "1.0.0"
+serviceUrl: "https://{MI_HOST}:{MI_PORT}/billinquiry"
+definitionType: "OAS3"
+securityType: "BASIC"
+mutualSSLEnabled: false
+apiId : "null"

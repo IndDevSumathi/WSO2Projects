@@ -1,0 +1,57 @@
+<data name="MPesaDS" serviceNamespace="MPesaDS" serviceGroup="MPesaDS" transports="http https" enableBatchRequests="true" 
+enableBoxcarring="true" disableLegacyBoxcarringMode="true">
+<config enableOData="false" id="01">
+        <property name="carbon_datasource_name">DBConfig</property>
+</config>
+
+<query id="getDueAmountQ" useConfig="01">
+    <sql>SELECT dueAmount,duePending FROM EB_Bill_Service WHERE uid= :uid</sql>
+    <result element="Entries">
+      <element name="dueAmount" xsdType="string" column="dueAmount" />
+      <element name="duePending" xsdType="string" column="duePending" />      
+    </result>
+    <param name="uid" sqlType="STRING" />
+  </query>
+  <operation name="getDueAmount">
+    <call-query href="getDueAmountQ">
+    	<with-param name="uid" query-param="uid" />
+    </call-query>
+  </operation> 
+  
+  <query id="getAccBalanceQ" useConfig="01">
+    <sql>SELECT balance FROM MPesa_Account_Info WHERE accNum= :acc_num</sql>
+    <result element="Entries">
+      <element name="balance" xsdType="string" column="balance" />      
+    </result>
+    <param name="acc_num" sqlType="STRING" />
+  </query>
+  <operation name="getAccBalance">
+    <call-query href="getAccBalanceQ">
+    	<with-param name="acc_num" query-param="acc_num" />
+    </call-query>
+  </operation> 
+
+<query id="updateBalanceQ" useConfig="01">
+    <sql>update MPesa_Account_Info set balance = :currentBalance where accNum = :acc_num</sql>
+    <param name="currentBalance" sqlType="STRING" />
+    <param name="acc_num" sqlType="STRING" />                 
+  </query>
+  <operation name="updateBalance" returnRequestStatus="true">
+    <call-query href="updateBalanceQ">
+      <with-param name="currentBalance" query-param="currentBalance" />
+      <with-param name="acc_num" query-param="acc_num" />                   
+    </call-query>
+  </operation> 
+
+<query id="updateStatusQ" useConfig="01">
+    <sql>UPDATE EB_Bill_Service SET duePending = 'NO', billRefNo = :billRefNo WHERE uid = :uid</sql>    
+    <param name="billRefNo" sqlType="STRING" />   
+    <param name="uid" sqlType="STRING" />                 
+  </query>
+  <operation name="updateStatus" returnRequestStatus="true">
+    <call-query href="updateStatusQ">
+      <with-param name="billRefNo" query-param="billRefNo" />       
+      <with-param name="uid" query-param="uid" />                   
+    </call-query>
+  </operation> 
+</data>

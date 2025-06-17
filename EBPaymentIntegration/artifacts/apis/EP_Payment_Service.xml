@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/billPayment" name="EP_Payment_Service" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST GET">
+        <inSequence>
+            <!-- Twilio connector SMS -->
+            <log level="custom">
+                <property name="Message" value="**** Electricity Provider Payment Service Invoked ****"/>
+            </log>
+            <property expression="json-eval($)" name="paymentRequest" scope="default" type="STRING"/>
+            <property expression="json-eval($.uid)" name="uid" scope="default" type="STRING"/>
+            <property expression="json-eval($.acc_num)" name="acc_num" scope="default" type="STRING"/>
+            <property expression="json-eval($.dueAmount)" name="dueAmount" scope="default" type="STRING"/>
+            <log level="custom">
+                <property name="Message" value="EB Payment Request"/>
+                <property expression="$ctx:paymentRequest" name="Message"/>
+            </log>
+            <!--Fetch Balance-->
+            <payloadFactory media-type="xml">
+                <format>
+                    <getBalance>
+                        <acc_num>$1</acc_num>
+                    </getBalance>
+                </format>
+                <args>
+                    <arg evaluator="xml" expression="$ctx:acc_num"/>
+                </args>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="text/xml"/>
+            <header name="Action" scope="default" value="getAccBalance"/>
+            <call>
+                <endpoint key="DBCall"/>
+            </call>
+            <property expression="$body//ns:balance/text()" name="accBalance" scope="default" type="STRING" xmlns:ns="MPesaDS"/>
+            <log level="custom">
+                <property expression="$ctx:accBalance" name="Balance "/>
+                <property expression="$ctx:dueAmount &lt;= $ctx:accBalance" name="sufficientBalance "/>
+            </log>
+            <filter xpath="get-property('dueAmount')&lt;=get-property('accBalance')">
+                <then>
+                    <property expression="$ctx:accBalance - $ctx:dueAmount" name="currentBalance" scope="default" type="STRING"/>
+                    <log level="custom">
+                        <property expression="$ctx:accBalance - $ctx:dueAmount" name="currentBalance "/>
+                    </log>
+                    <!-- Math.floor(Math.random() * 100) + 1 -->
+                    <script language="js"><![CDATA[var randomNumber = Math.floor(100000 + Math.random() * 900000);
+    					mc.setProperty("randomNumber", randomNumber + "");]]></script>
+                    <property expression="$ctx:randomNumber" name="billref" scope="default" type="STRING"/>
+                    <log level="custom">
+                        <property expression="$ctx:billref" name="billref "/>
+                    </log>
+                    <payloadFactory media-type="xml">
+                        <format>
+                            <updateBalance>
+                                <currentBalance>$1</currentBalance>
+                                <acc_num>$2</acc_num>
+                            </updateBalance>
+                        </format>
+                        <args>
+                            <arg evaluator="xml" expression="$ctx:currentBalance"/>
+                            <arg evaluator="xml" expression="$ctx:acc_num"/>
+                        </args>
+                    </payloadFactory>
+                    <property name="messageType" scope="axis2" type="STRING" value="text/xml"/>
+                    <header name="Action" scope="default" value="updateBalance"/>
+                    <call>
+                        <endpoint key="DBCall"/>
+                    </call>
+                    <property expression="//axis2ns3:REQUEST_STATUS" name="updateBalanceResp" scope="default" type="STRING" xmlns:axis2ns3="http://ws.wso2.org/dataservice"/>
+                    <filter regex="SUCCESSFUL" source="get-property('updateBalanceResp')">
+                        <then>
+                            <payloadFactory media-type="xml">
+                                <format>
+                                    <updateStatus>
+                                        <uid>$1</uid>
+                                        <billRefNo>$2</billRefNo>
+                                    </updateStatus>
+                                </format>
+                                <args>
+                                    <arg evaluator="xml" expression="$ctx:uid"/>
+                                    <arg evaluator="xml" expression="$ctx:billref"/>
+                                </args>
+                            </payloadFactory>
+                            <property name="messageType" scope="axis2" type="STRING" value="text/xml"/>
+                            <header name="Action" scope="default" value="updateStatus"/>
+                            <call>
+                                <endpoint key="DBCall"/>
+                            </call>
+                            <property expression="//axis2ns5:REQUEST_STATUS" name="updateStatusResp" scope="default" type="STRING" xmlns:axis2ns5="http://ws.wso2.org/dataservice"/>
+                            <filter regex="SUCCESSFUL" source="get-property('updateStatusResp')">
+                                <then>
+                                    <payloadFactory media-type="json">
+                                        <format>
+									                   { 
+									                   "status": "success",
+									                   "billref":$1
+									                   }
+									               </format>
+                                        <args>
+                                            <arg evaluator="xml" expression="$ctx:billref"/>
+                                        </args>
+                                    </payloadFactory>
+                                    <respond/>
+                                    <!-- <clone sequential="true">
+        								<target>
+            								<sequence>
+            									<twilio.init>
+			                                        <accountSid>AC3dd03f4880f9e1777faaeeba3e9fd906</accountSid>
+			                                        <authToken>15105a41c3dc31ac88e794fc7aaafff8</authToken>
+			                                    </twilio.init>
+			                                    <twilio.sendSms>
+			                                        <body>Hi</body>
+			                                        <to>9687261638</to>
+			                                        <from>+16318372558</from>
+			                                    </twilio.sendSms>
+			                                    <log level="full"/>
+            								</sequence>
+            							</target> -->
+                                </then>
+                                <else/>
+                            </filter>
+                        </then>
+                        <else/>
+                    </filter>
+                    <respond/>
+                </then>
+                <else>
+                    <payloadFactory media-type="json">
+                        <format>
+		                   { 
+		                   "error": "insufficient balance"
+		                   }
+		               </format>
+                        <args/>
+                    </payloadFactory>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+</api>

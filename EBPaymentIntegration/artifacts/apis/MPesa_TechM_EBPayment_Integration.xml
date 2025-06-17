@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/ebPayment" name="MPesa_TechM_EBPayment_Integration" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST GET">
+        <inSequence>
+            <!-- Request building for EP Payment service -->
+            <log level="custom">
+                <property name="Message" value="**** MPesa EB Payment Integration Flow Invoked ****"/>
+            </log>
+            <property expression="json-eval($)" name="receivedRequest" scope="default" type="STRING"/>
+            <property expression="json-eval($.uid)" name="uid" scope="default" type="STRING"/>
+            <property expression="json-eval($.acc_num)" name="acc_num" scope="default" type="STRING"/>
+            <property expression="json-eval($.provider)" name="provider" scope="default" type="STRING"/>
+            <property name="uri.var.billInquiry" scope="default" type="STRING" value="http://localhost:8290/billInquiry"/>
+            <!-- Call Electricity Provider Bill Inquiry Service-->
+            <payloadFactory media-type="json" template-type="freemarker">
+                <format><![CDATA[
+							${ctx.receivedRequest}
+							]]></format>
+                <args/>
+            </payloadFactory>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="{uri.var.billInquiry}">
+                        <timeout>
+                            <duration>3000</duration>
+                            <responseAction>discard</responseAction>
+                        </timeout>
+                        <suspendOnFailure>
+                            <errorCodes>-1</errorCodes>
+                            <initialDuration>0</initialDuration>
+                            <progressionFactor>1.0</progressionFactor>
+                            <maximumDuration>0</maximumDuration>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <errorCodes>-1</errorCodes>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <log level="full"/>
+            <property expression="json-eval($)" name="billInquiryResp" scope="default" type="STRING"/>
+            <property expression="json-eval($.dueAmount)" name="dueAmount" scope="default" type="STRING"/>
+            <filter regex="true" source="boolean(get-property('dueAmount'))">
+                <then>
+                    <payloadFactory media-type="json">
+                        <format>
+		                {
+		                   "uid":"$1",
+		                   "acc_num":$2,
+		                   "dueAmount":$3
+		                   }
+		               </format>
+                        <args>
+                            <arg evaluator="xml" expression="$ctx:uid"/>
+                            <arg evaluator="xml" expression="$ctx:acc_num"/>
+                            <arg evaluator="xml" expression="$ctx:dueAmount"/>
+                        </args>
+                    </payloadFactory>
+                    <property name="uri.var.billPayment" scope="default" type="STRING" value="http://localhost:8290/billPayment"/>
+                    <call>
+                        <endpoint>
+                            <http method="post" uri-template="{uri.var.billPayment}">
+                                <timeout>
+                                    <duration>3000</duration>
+                                    <responseAction>discard</responseAction>
+                                </timeout>
+                                <suspendOnFailure>
+                                    <errorCodes>-1</errorCodes>
+                                    <initialDuration>0</initialDuration>
+                                    <progressionFactor>1.0</progressionFactor>
+                                    <maximumDuration>0</maximumDuration>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <errorCodes>-1</errorCodes>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </call>
+                    <respond/>
+                </then>
+                <else>
+                    <log level="custom">
+                        <property name="Message" value="***No due to pay***"/>
+                    </log>
+                    <payloadFactory media-type="json">
+                        <format>
+		                {
+		                   "uid":"$1",
+		                   "acc_num":$2,
+		                   "dueAmount":"No due to pay"
+		                   }
+		               </format>
+                        <args>
+                            <arg evaluator="xml" expression="$ctx:uid"/>
+                            <arg evaluator="xml" expression="$ctx:acc_num"/>
+                        </args>
+                    </payloadFactory>
+                    <respond/>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+</api>

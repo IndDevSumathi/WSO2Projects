@@ -1,0 +1,17 @@
+openapi: 3.0.1
+info:
+  title: EP_Bill_Inquiry_Service
+  description: API Definition of EP_Bill_Inquiry_Service
+  version: 1.0.0
+servers:
+- url: http://localhost:8290/billInquiry
+paths:
+  /:
+    get:
+      responses:
+        default:
+          description: Default response
+    post:
+      responses:
+        default:
+          description: Default response
