@@ -100,21 +100,7 @@
                                         </args>
                                     </payloadFactory>
                                     <respond/>
-                                    <!-- <clone sequential="true">
-        								<target>
-            								<sequence>
-            									<twilio.init>
-			                                        <accountSid>AC3dd03f4880f9e1777faaeeba3e9fd906</accountSid>
-			                                        <authToken>15105a41c3dc31ac88e794fc7aaafff8</authToken>
-			                                    </twilio.init>
-			                                    <twilio.sendSms>
-			                                        <body>Hi</body>
-			                                        <to>9687261638</to>
-			                                        <from>+16318372558</from>
-			                                    </twilio.sendSms>
-			                                    <log level="full"/>
-            								</sequence>
-            							</target> -->
+                                    
                                 </then>
                                 <else/>
                             </filter>
