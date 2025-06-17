@@ -99,8 +99,7 @@
                                             <arg evaluator="xml" expression="$ctx:billref"/>
                                         </args>
                                     </payloadFactory>
-                                    <respond/>
-                                    
+                                    <respond/>                                    
                                 </then>
                                 <else/>
                             </filter>
