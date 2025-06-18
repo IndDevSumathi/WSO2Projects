@@ -1,0 +1,32 @@
+<datasources-configuration xmlns:svns="http://org.wso2.securevault/configuration">
+    <providers>
+        <provider>org.wso2.micro.integrator.ndatasource.rdbms.RDBMSDataSourceReader</provider>
+    </providers>
+    <datasources>
+		<datasource>
+			<name>DBConfig</name>
+			<description>DBConfig</description>
+			<jndiConfig useDataSourceFactory="false">
+				<name>DBConfig</name>
+			</jndiConfig>
+			<definition type="RDBMS">
+				<configuration>
+					<driverClassName>com.mysql.jdbc.Driver</driverClassName>
+					<url>jdbc:mysql://localhost:3306/totsco</url>
+					<username>techm</username>
+					<password svns:secretAlias="MYSQL_PASSWORD"></password>
+					<maxActive>50</maxActive>
+					<maxWait>60000</maxWait>
+					<testOnBorrow>true</testOnBorrow>
+					<validationQuery>SELECT 1</validationQuery>
+					<validationInterval>30000</validationInterval>
+					<defaultAutoCommit>true</defaultAutoCommit>
+					<!-- <jdbcInterceptors>SlowQueryReport(threshold=50)</jdbcInterceptors> -->
+					<logAbandoned>true</logAbandoned>
+					<removeAbandoned>true</removeAbandoned>
+					<removeAbandonedTimeout>150</removeAbandonedTimeout>
+				</configuration>
+			</definition>
+		</datasource>
+    </datasources>
+</datasources-configuration>

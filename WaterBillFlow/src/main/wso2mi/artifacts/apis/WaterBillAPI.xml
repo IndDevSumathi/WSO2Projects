@@ -1,0 +1,58 @@
+<api xmlns="http://ws.apache.org/ns/synapse" name="WaterBillAPI" context="/waterbill">
+    <resource methods="POST" uri-template="/pay">
+        <inSequence>
+            <log category="INFO">
+                <message>Processing water bill payment for ${payload.name}</message>
+            </log>
+            
+            <variable name="customerName" expression="${payload.name}" type="STRING"/>
+            <variable name="accountNumber" expression="${payload.acc_num}" type="STRING"/>
+            <variable name="serviceProvider" expression="${payload.serviceProvider}" type="STRING"/>
+            
+            <filter xpath="${exists(payload.name) and exists(payload.acc_num) and exists(payload.serviceProvider)}">
+                <then>
+                    <payloadFactory media-type="json">
+                        <format>
+                            {
+                                "status": "success",
+                                "message": "Thank you ${vars.customerName}! Your water bill payment has been processed successfully.",
+                                "details": {
+                                    "customerName": "${vars.customerName}",
+                                    "accountNumber": "${vars.accountNumber}",
+                                    "serviceProvider": "${vars.serviceProvider}",
+                                    "timestamp": "${formatDateTime(now(), 'yyyy-MM-dd HH:mm:ss')}"
+                                }
+                            }
+                        </format>
+                    </payloadFactory>
+                </then>
+                <else>
+                    <payloadFactory media-type="json">
+                        <format>
+                            {
+                                "status": "error",
+                                "message": "Missing required fields. Please provide name, acc_num, and serviceProvider."
+                            }
+                        </format>
+                    </payloadFactory>
+                </else>
+            </filter>
+            
+            <respond/>
+        </inSequence>
+        <faultSequence>
+            <log category="ERROR">
+                <message>Error processing water bill payment: ${props.synapse.ERROR_MESSAGE}</message>
+            </log>
+            <payloadFactory media-type="json">
+                <format>
+                    {
+                        "status": "error",
+                        "message": "An error occurred while processing your water bill payment. Please try again."
+                    }
+                </format>
+            </payloadFactory>
+            <respond/>
+        </faultSequence>
+    </resource>
+</api>
